@@ -13,6 +13,7 @@ import androidx.core.graphics.applyCanvas
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.coroutineScope
 import androidx.lifecycle.lifecycleScope
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.work.ListenableWorker
 import androidx.work.Operation
@@ -39,6 +40,7 @@ class SettingsActivity : AppCompatActivity() {
                 .commit()
 
         }
+
         //supportActionBar?.setDisplayHomeAsUpEnabled(true)
     }
 
@@ -55,7 +57,11 @@ class SettingsActivity : AppCompatActivity() {
     class SettingsFragment : PreferenceFragmentCompat() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
-            Toast.makeText(requireContext(), "Hopeee", Toast.LENGTH_LONG).show()
+
+            findPreference<ListPreference>("sync_hours")?.setOnPreferenceChangeListener { preference, newValue ->
+                scheduleWorker(requireContext(), newValue as Long)
+                return@setOnPreferenceChangeListener true
+            }
         }
     }
 }

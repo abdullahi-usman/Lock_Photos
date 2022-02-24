@@ -7,9 +7,9 @@ import androidx.work.*
 import java.util.concurrent.TimeUnit
 
 
-fun scheduleWorker(context: Context): Operation{
+fun scheduleWorker(context: Context, sync_hours: Long = 1): Operation{
 
-    val wallpaperWorkerBuilder = PeriodicWorkRequestBuilder<WallpaperBackgroundWorker>(90, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
+    val wallpaperWorkerBuilder = PeriodicWorkRequestBuilder<WallpaperBackgroundWorker>(sync_hours * 60 + 30, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
     val wallpaperWorkerConstraint = Constraints.Builder()
     wallpaperWorkerConstraint.setRequiresBatteryNotLow(true)
     wallpaperWorkerConstraint.setRequiresStorageNotLow(true)
