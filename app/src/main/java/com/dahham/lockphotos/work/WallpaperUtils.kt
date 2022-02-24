@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 fun scheduleWorker(context: Context): Operation{
 
-    val wallpaperWorkerBuilder = PeriodicWorkRequestBuilder<WallpaperBackgroundWorker>(3, TimeUnit.MINUTES)
+    val wallpaperWorkerBuilder = PeriodicWorkRequestBuilder<WallpaperBackgroundWorker>(90, TimeUnit.MINUTES, 15, TimeUnit.MINUTES)
     val wallpaperWorkerConstraint = Constraints.Builder()
     wallpaperWorkerConstraint.setRequiresBatteryNotLow(true)
     wallpaperWorkerConstraint.setRequiresStorageNotLow(true)

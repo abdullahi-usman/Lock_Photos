@@ -17,8 +17,6 @@ import java.util.*
 
 class UnsplashNetworkHandler private constructor(context: Context){
 
-
-    private val coroutineScope = CoroutineScope(Job() + Dispatchers.IO)
     private var RANDOM_PHOTO_COUNT = 10
     private val HOME_URL = "https://api.unsplash.com/"
     private val TRIGGER_DOWNLOAD_URL = "photos/:id/download"
@@ -95,9 +93,9 @@ class UnsplashNetworkHandler private constructor(context: Context){
         }
 
         if (unsplashPhoto?.bitmap != null){
-            coroutineScope.launch {
+            //coroutineScope.launch {
                 unsplashPhotoDatabase.savePhoto(unsplashPhoto)
-            }
+            //}
         }
 
         unsplashPhotos.poll()?.let {

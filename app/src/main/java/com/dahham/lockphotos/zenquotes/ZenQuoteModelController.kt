@@ -23,8 +23,6 @@ class ZenQuoteModelController(context: Context) {
 
     var quoteDatabase = ZenQuoteDatabase.getInstance(context)
     var zenQuotesNetworkHandler = ZenQuotesNetworkHandler.getInstance(context)
-    var lifecycle = CoroutineScope(Job() + Dispatchers.IO)
-
 
     private fun getQuotesFromNetworkAndCache(callback: ((Array<ZenQuote>?) -> Unit)? = null){
 
@@ -33,25 +31,28 @@ class ZenQuoteModelController(context: Context) {
             .getQuotesFromNetwork { quotes ->
                 callback?.invoke(quotes)
                 if(quotes != null) {
-                    lifecycle.launch(Dispatchers.IO) {
+                    //lifecycle.launch(Dispatchers.IO) {
                         quoteDatabase.cacheQuotes(quotes)
-                    }
+                    //}
                 }
             }
     }
 
     fun getRandomQuote(callback: (zenQuote: ZenQuote?) -> Unit) {
 
-        lifecycle.launch {
+        //lifecycle.launch {
             quoteDatabase.getDaO().getleastUsed()?.let {
+                ++it.noHasBeenUsed
+                quoteDatabase.getDaO().putAll(it)
+
                 callback.invoke(it)
 
-                if (it.noHasBeenUsed >= 5){
+                if (it.noHasBeenUsed >= 4){
                     getQuotesFromNetworkAndCache{
                         if(it != null && it.size > 0){
-                            lifecycle.launch(Dispatchers.IO) {
+                            //lifecycle.launch(Dispatchers.IO) {
                                 quoteDatabase.purge(4)
-                            }
+                            //}
                         }
                     }
                 }
@@ -62,7 +63,7 @@ class ZenQuoteModelController(context: Context) {
                     callback(null)
                 }
             }
-        }
+        //}
 
     }
 

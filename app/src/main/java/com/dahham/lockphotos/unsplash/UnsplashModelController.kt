@@ -1,6 +1,7 @@
 package com.dahham.lockphotos.unsplash
 
 import android.content.Context
+import android.text.style.UnderlineSpan
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.*
 
@@ -15,8 +16,6 @@ class UnsplashModelController(context: Context) {
             }
         }
     }
-
-    private var lifecycle = CoroutineScope(Job() + Dispatchers.IO)
 
     interface UnsplashUpdateListener{
 
@@ -47,15 +46,15 @@ class UnsplashModelController(context: Context) {
 
     private fun getUnsplashPhoto(): UnsplashUpdateListener{
 
-        unsplashNetworkHandler.loadRandomImages(10).invokeOnProgressListener {
+        unsplashNetworkHandler.loadRandomImages(3).invokeOnProgressListener {
             progressListenerCallback?.invoke(it)
         }.invokeOnCompletion {
             completionListenerCallback?.invoke(it)
 
             if(it != null && it.size > 0){
-                lifecycle.launch(Dispatchers.IO) {
+                //lifecycle.launch(Dispatchers.IO) {
                     unsplashPhotoDatabase.Purge(4)
-                }
+                //}
             }
         }
 
@@ -66,9 +65,8 @@ class UnsplashModelController(context: Context) {
         getFromDatabase {
             if (it == null || it.noOfUsed >= 5){
                 val listener = getUnsplashPhoto()
-                listener.progressListener {
-                    callback.invoke(it)
-                    listener.progressListener(null)
+                listener.completionListener {
+                    callback.invoke(it?.getOrNull(0))
                 }
 
             }else{
@@ -78,14 +76,14 @@ class UnsplashModelController(context: Context) {
     }
 
     private fun getFromDatabase(callback: ((UnsplashPhoto?) -> Unit)){
-        lifecycle.launch(Dispatchers.IO) {
+        //lifecycle.launch(Dispatchers.IO) {
             unsplashPhotoDatabase.getRandomPhoto()?.let {
-                withContext(Dispatchers.Main){
+                //withContext(Dispatchers.Main){
                     callback.invoke(it)
-                }
+                //}
 
             } ?: callback.invoke(null)
-        }
+        //}
     }
 
 }

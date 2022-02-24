@@ -40,26 +40,6 @@ class ExampleInstrumentedTest {
     }
 
     @Test
-    fun useZenQuotes(){
-        zenQuotesNetworkHandler.getQuotesFromNetwork{
-            GlobalScope.launch {
-                zenQuoteDatabase.cacheQuotes(context, it!!)
-            }
-        }
-    }
-
-    @Test
-    fun useCache(){
-        val context = ApplicationProvider.getApplicationContext<Context>()
-        coroutineScope.launch {
-            zenQuoteDatabase.getQuotes(context).let {
-                it.toString()
-            }
-        }
-
-    }
-
-    @Test
     fun getUnsplashPhoto(){
         unsplashNetworkHandler.loadRandomImages(1).invokeOnProgressListener {
             it.toString()

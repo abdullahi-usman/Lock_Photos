@@ -25,6 +25,9 @@ interface UnsplashPhotoDaO{
     @Query("SELECT * from unsplashphoto ORDER BY noOfUsed ASC LIMIT 1")
     fun getleastUnsed(): UnsplashPhoto?
 
+    @Query("SELECT * from unsplashphoto")
+    fun getAll(): Array<UnsplashPhoto>
+
     @Update(onConflict = REPLACE)
     fun Update(vararg photos: UnsplashPhoto)
 
@@ -50,7 +53,7 @@ abstract class UnsplashPhotoDatabase: RoomDatabase(){
         private var INSTANCE: UnsplashPhotoDatabase? = null
 
         fun getInstance(context: Context) = INSTANCE ?: synchronized(this){
-            INSTANCE ?: Room.databaseBuilder(context.applicationContext, UnsplashPhotoDatabase::class.java, "unsplash_photos.db").build().also {
+            INSTANCE ?: Room.databaseBuilder(context.applicationContext, UnsplashPhotoDatabase::class.java, "unsplash_photos.db").allowMainThreadQueries().build().also {
                 INSTANCE = it
                 INSTANCE?.localFilesDir = context.filesDir
             }
@@ -82,20 +85,21 @@ abstract class UnsplashPhotoDatabase: RoomDatabase(){
     }
 
 
-    suspend fun getRandomPhoto(): UnsplashPhoto? {
+    fun getRandomPhoto(): UnsplashPhoto? {
 
-        return getDaO().getleastUnsed()?.apply {
+        val np = getDaO().getAll()
+        val nn = getDaO().getleastUnsed()
+        return nn?.apply {
             localFilesDir.listFiles{ dir, name ->
                 name == id
             }?.first()?.let { file ->
-                bitmap = BitmapFactory.decodeStream(file.inputStream())
-//                bitmap?.copy(Bitmap.Config.ARGB_8888, true)?.let {
-//                    bitmap = it
-//                }
+                BitmapFactory.decodeStream(file.inputStream())?.let {
 
-                if(bitmap != null){
-                    ++this.noOfUsed
-                    getDaO().Update(this)
+                    if (bitmap != null) {
+                        ++this.noOfUsed
+                        getDaO().Update(this)
+                    }
+                    bitmap
                 }
             }
         }
@@ -110,7 +114,7 @@ abstract class UnsplashPhotoDatabase: RoomDatabase(){
         } ?: false
     }
 
-    suspend fun Purge(maxUsable: Int){
+    fun Purge(maxUsable: Int){
         getDaO().purge(maxUsable)
     }
 }

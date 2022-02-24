@@ -2,6 +2,7 @@ package com.dahham.lockphotos.zenquotes
 
 import android.content.Context
 import androidx.room.*
+import androidx.room.OnConflictStrategy.REPLACE
 
 
 @Dao
@@ -13,7 +14,7 @@ interface ZenQuoteDaO{
     @Query("SELECT * FROM ZenQuote ORDER BY noHasBeenUsed ASC LIMIT 1")
     fun getleastUsed(): ZenQuote?
 
-    @Insert
+    @Insert(onConflict = REPLACE)
     fun putAll(vararg zenquotes: ZenQuote)
 
     @Delete
@@ -35,11 +36,11 @@ abstract class ZenQuoteDatabase : RoomDatabase(){
 
     abstract fun getDaO(): ZenQuoteDaO
 
-    suspend fun cacheQuotes(zenquotes: Array<ZenQuote>){
+    fun cacheQuotes(zenquotes: Array<ZenQuote>){
         getDaO().putAll(*zenquotes)
     }
 
-    suspend fun getQuote(): ZenQuote?{
+    fun getQuote(): ZenQuote?{
         val dao = getDaO()
 
         return dao.getleastUsed().also {
@@ -50,11 +51,11 @@ abstract class ZenQuoteDatabase : RoomDatabase(){
         }
     }
 
-    suspend fun getQuotes(): List<ZenQuote>?{
+    fun getQuotes(): List<ZenQuote>?{
         return getDaO().getAll()
     }
 
-    suspend fun purge(maxNoOfUse: Int){
+    fun purge(maxNoOfUse: Int){
         getDaO().Purge(maxNoOfUse)
     }
 
